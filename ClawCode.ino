@@ -9,7 +9,7 @@ bool isNear;
 void setup() {
   prizm.PrizmBegin();
   prizm.setServoSpeed(1,100);
-  prizm.setServoSpeed(2,15);
+  prizm.setServoSpeed(2,355);|
   distance = 0;
   Serial.begin(9600);
 }
@@ -22,12 +22,8 @@ void closeClaws() {
   prizm.setServoPosition(1,100);
 }
 
-void liftArm() {
-  prizm.setServoPosition(2,50); 
-}
-
-void lowerArm() {
-  prizm.setServoPosition(2,100); 
+void moveArm(int a) {
+  prizm.setServoPosition(2,a); 
 }
 
 void setMovement(int y, int x) {
@@ -39,24 +35,26 @@ void dropOffPart() {
   distance2 = prizm.readSonicSensorCM(2);
   setMovement(1, -100);
   setMovement(2, 100);
-  while (isNear == false) {if (distance2 < 2) {isNear = true;} else {distance2 = prizm.readSonicSensorCM(2);}}
+  while (isNear == false) {if (distance2 < 1) {isNear = true;} else {distance2 = prizm.readSonicSensorCM(2);}}
   setMovement(1,0);
   setMovement(2,0);
-  lowerArm();
-  delay(1000);
+  moveArm(120);
+  delay(2000);
   openClaws();
 }
 
+//lift 50
+//lower 100
 void returnToStart() {
   isNear = false;
-  liftArm();
+  moveArm(50);
+  delay(500);
   closeClaws();
   distance = prizm.readSonicSensorCM(4);
-  Serial.print("TurnOn");
   setMovement(1, 100);
   setMovement(2, -100);
   while (isNear == false) {
-    if (distance < 3) {
+    if (distance < 1) {
       isNear = true;
     }else{
       distance = prizm.readSonicSensorCM(4);
@@ -68,17 +66,18 @@ void returnToStart() {
 
 void loop() {
   closeClaws();
-  liftArm();
+  moveArm(50);
   delay(2000);
   openClaws();
   delay(100);
-  lowerArm();
+  moveArm(100);
   delay(1000);
   closeClaws();
   delay(500);
-  liftArm();
+  moveArm(50);
   dropOffPart();
-  delay(1000);
+  moveArm(50);
+  delay(2000);
   returnToStart();
 //  if (prizm.readSonicSensorCM(3) < 3) {
 //    liftArm();
