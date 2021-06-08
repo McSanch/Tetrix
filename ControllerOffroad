@@ -1,0 +1,61 @@
+#include <PRIZM.h>
+#include <TELEOP.h>
+PRIZM prizm;
+PS4 ps4; 
+
+int MotorPower1;
+int MotorPower2;
+int Turn;
+
+void setup() {
+
+  prizm.PrizmBegin();
+  ps4.setDeadZone (LEFT,15);
+  ps4.setDeadZone(RIGHT,15);
+  prizm.setMotorInvert(1,1);
+  MotorPower1 = 100;
+  MotorPower2 = 100;
+  Serial.begin(9600);
+}
+
+void loop() {
+  ps4.getPS4();
+  
+  if(ps4.Connected){
+    //If the ps4 controller is connected to the robot then check if the r2 button is being pressed
+    //If so then turn the motors on else off
+    
+    //Sets the Turn variable to the left sticks x axis
+    Turn = ps4.Motor(LX);
+
+    //Makes the left motor slower if the stick is far enough left
+    if (Turn <= -50) {
+      MotorPower1 = -100;
+    } else {
+      MotorPower1 = 100;
+    }
+
+    //Makes the right motor slower if the stick is far enough right
+    if (Turn >= 50) {
+      MotorPower2 = -100;
+    } else {
+      MotorPower2 = 100;
+    }
+    
+    if (ps4.Button(R2)) {
+      prizm.setMotorPowers(MotorPower1, MotorPower2);
+    } else {
+      prizm.setMotorPowers(0, 0);
+    }
+
+    if (ps4.Button(L2)) {
+      prizm.setMotorPowers(-MotorPower1, -MotorPower2);
+    } else {
+      prizm.setMotorPowers(0, 0);
+    }
+    
+  } else {
+    //If the controller isnt connected then it will turn off the motors
+    prizm.setMotorPowers(0,0);
+  }
+}
