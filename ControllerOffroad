@@ -5,6 +5,7 @@ PS4 ps4;
 
 int MotorPower1;
 int MotorPower2;
+int ServoAngle;
 int Turn;
 
 void setup() {
@@ -13,9 +14,11 @@ void setup() {
   ps4.setDeadZone (LEFT,15);
   ps4.setDeadZone(RIGHT,15);
   prizm.setMotorInvert(1,1);
+  prizm.setServoSpeed(1,100);
+  prizm.setServoPosition(1,180);
+  ServoAngle = 180;
   MotorPower1 = 100;
   MotorPower2 = 100;
-  Serial.begin(9600);
 }
 
 void loop() {
@@ -29,27 +32,41 @@ void loop() {
     Turn = ps4.Motor(LX);
 
     //Makes the left motor slower if the stick is far enough left
-    if (Turn <= -50) {
-      MotorPower1 = -100;
-    } else {
+    if (Turn >= 50) {
       MotorPower1 = 100;
+    } else {
+      MotorPower1 = -100;
     }
 
     //Makes the right motor slower if the stick is far enough right
-    if (Turn >= 50) {
-      MotorPower2 = -100;
-    } else {
+    if (Turn <= -50) {
       MotorPower2 = 100;
+    } else {
+      MotorPower2 = -100;
     }
-    
-    if (ps4.Button(R2)) {
-      prizm.setMotorPowers(MotorPower1, MotorPower2);
+
+    //Down will make the servo go down dropping the trap
+    if (ps4.Button(DOWN)) {
+      if (ServoAngle == 180) { ServoAngle = 60; }
+      prizm.setServoPosition(1,ServoAngle);
+    }
+
+    //Up will make the servo go up, enough said
+    if (ps4.Button(UP)) {
+      if (ServoAngle == 60) { ServoAngle = 180; }
+      prizm.setServoPosition(1,ServoAngle);
+    }
+
+    //Reverse
+    if (ps4.Button(L2)) {
+      prizm.setMotorPowers(-MotorPower1, -MotorPower2);
     } else {
       prizm.setMotorPowers(0, 0);
     }
 
-    if (ps4.Button(L2)) {
-      prizm.setMotorPowers(-MotorPower1, -MotorPower2);
+    //Drive forward
+    if (ps4.Button(R2)) {
+      prizm.setMotorPowers(MotorPower1, MotorPower2);
     } else {
       prizm.setMotorPowers(0, 0);
     }
